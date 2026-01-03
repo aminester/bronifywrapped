@@ -1,0 +1,353 @@
+/* ============================================================================
+   BRONIFY WRAPPED 2025 - Global Styles (Spotify Design System)
+   ============================================================================ */
+
+/* Import Spotify Mix Font */
+@import url('/font/stylesheet.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Spotify Mix', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #552583 0%, #2d1548 50%, #FDB927 100%);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================================
+   Main App Layout
+   ============================================================================ */
+
+.bronify-app {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Background Effects */
+.bg-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(253, 185, 39, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(85, 37, 131, 0.4) 0%, transparent 50%),
+    linear-gradient(135deg, #552583 0%, #2d1548 50%, #3d1d5f 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 50px,
+      rgba(253, 185, 39, 0.02) 50px,
+      rgba(253, 185, 39, 0.02) 100px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================================
+   Stories Container
+   ============================================================================ */
+
+.stories-container {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  position: relative;
+  z-index: 10;
+  background: #1a0a2e;
+  box-shadow: 0 0 60px rgba(253, 185, 39, 0.3), 0 0 120px rgba(85, 37, 131, 0.4);
+  touch-action: pan-y;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* All screens: maintain 9:16 aspect ratio and center */
+.bronify-app {
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .stories-container {
+    width: calc(100vw - 32px);
+    max-width: 420px;
+    height: auto;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    aspect-ratio: 9 / 16;
+  }
+  
+  .side-panel {
+    display: none !important;
+  }
+  
+  .bronify-app {
+    padding: 16px;
+  }
+}
+
+/* Desktop: Centered with side panel */
+@media (min-width: 769px) {
+  .bronify-app {
+    gap: 60px;
+    padding: 40px;
+  }
+  
+  .stories-container {
+    height: calc(100vh - 80px);
+    max-height: 900px;
+    width: auto;
+    aspect-ratio: 9 / 16;
+  }
+}
+
+/* ============================================================================
+   Side Panel (Desktop Only)
+   ============================================================================ */
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+  max-width: 300px;
+  z-index: 5;
+}
+
+.brand {
+  text-align: center;
+}
+
+.brand-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.brand h1 {
+  font-size: 42px;
+  font-weight: 900;
+  color: #FDB927;
+  letter-spacing: 4px;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(253, 185, 39, 0.4);
+}
+
+.brand p {
+  font-size: 18px;
+  color: #888;
+  letter-spacing: 6px;
+  margin-top: 8px;
+  font-weight: 300;
+}
+
+.instructions {
+  background: rgba(253, 185, 39, 0.1);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(253, 185, 39, 0.3);
+}
+
+.instructions p {
+  color: #e0e0e0;
+  font-size: 14px;
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.instructions p:first-child {
+  margin-top: 0;
+}
+
+.instructions p:last-child {
+  margin-bottom: 0;
+}
+
+.instructions span {
+  color: #FDB927;
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+/* ============================================================================
+   Custom Scrollbar
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(253, 185, 39, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(253, 185, 39, 0.8);
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
+/* ============================================================================
+   Spotify-Style Animations
+   ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(253, 185, 39, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(253, 185, 39, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
+.text-gold {
+  color: #FDB927;
+}
+
+.text-purple {
+  color: #552583;
+}
+
+.bg-gold {
+  background: #FDB927;
+}
+
+.bg-purple {
+  background: #552583;
+}
+
+/* Selection Color */
+::selection {
+  background: rgba(253, 185, 39, 0.4);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background: rgba(253, 185, 39, 0.4);
+  color: #ffffff;
+}

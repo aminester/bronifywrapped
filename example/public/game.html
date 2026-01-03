@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Artist Showdown</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Circular:wght@400;700;900&family=Bebas+Neue&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Circular', 'Bebas Neue', sans-serif;
+            background-color: #121212;
+            user-select: none;
+        }
+
+        #game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #scoreboard {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            opacity: 1;
+            z-index: 20;
+        }
+
+        .score-card {
+            background: rgba(18, 18, 18, 0.95);
+            border: 1px solid #FDB927;
+            border-radius: 8px;
+            padding: 12px 20px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .artist-name {
+            font-family: 'Circular', sans-serif;
+            font-size: 12px;
+            color: #B3B3B3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .score-val {
+            font-family: 'Circular Black', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: #FDB927;
+            line-height: 1;
+        }
+
+        #message-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 30;
+        }
+
+        #message-overlay.active {
+            opacity: 1;
+        }
+
+        #message-text {
+            font-family: 'Circular Black', sans-serif;
+            font-size: 48px;
+            color: #FDB927;
+            text-shadow: 0 4px 20px rgba(253, 185, 39, 0.5);
+            margin: 0;
+        }
+
+        #timer {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Circular Black', sans-serif;
+            font-size: 64px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            z-index: 25;
+        }
+
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        #game-over.active {
+            display: flex;
+        }
+
+        #winner-text {
+            font-family: 'Circular Black', sans-serif;
+            font-size: 48px;
+            color: #FDB927;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        #final-scores {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .final-score-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px 32px;
+            background: rgba(253, 185, 39, 0.1);
+            border-radius: 8px;
+            min-width: 300px;
+        }
+
+        .final-rank {
+            font-family: 'Circular Black', sans-serif;
+            font-size: 32px;
+            color: #FDB927;
+            width: 40px;
+        }
+
+        .final-artist {
+            font-family: 'Circular', sans-serif;
+            font-size: 18px;
+            color: #fff;
+            flex: 1;
+        }
+
+        .final-score {
+            font-family: 'Circular Black', sans-serif;
+            font-size: 24px;
+            color: #FDB927;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-ui">
+        <div id="scoreboard">
+            <div class="score-card">
+                <div class="artist-name" id="artist1-name">Man on the Lakers</div>
+                <div class="score-val" id="score1">0</div>
+            </div>
+            <div class="score-card">
+                <div class="artist-name" id="artist2-name">That's Bron</div>
+                <div class="score-val" id="score2">0</div>
+            </div>
+            <div class="score-card">
+                <div class="artist-name" id="artist3-name">LeRnB</div>
+                <div class="score-val" id="score3">0</div>
+            </div>
+            <div class="score-card">
+                <div class="artist-name" id="artist4-name">Lakers in 5</div>
+                <div class="score-val" id="score4">0</div>
+            </div>
+            <div class="score-card">
+                <div class="artist-name" id="artist5-name">From LeStart</div>
+                <div class="score-val" id="score5">0</div>
+            </div>
+        </div>
+
+        <div id="timer">30</div>
+
+        <div id="message-overlay">
+            <div id="message-text">SCORE!</div>
+        </div>
+    </div>
+
+    <div id="game-over">
+        <div id="winner-text">🏆 YOUR TOP ARTIST 🏆</div>
+        <div id="final-scores"></div>
+    </div>
+
+    <script>
+        const SoundManager = {
+            ctx: null,
+            init: function() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+            play: function(type) {
+                if (!this.ctx) return;
+                const t = this.ctx.currentTime;
+                
+                if (type === 'swish') {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.frequency.setValueAtTime(800, t);
+                    osc.frequency.exponentialRampToValueAtTime(400, t + 0.2);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.2);
+                }
+            }
+        };
+
+        let scene, camera, renderer;
+        let balls = [];
+        let hoops = [];
+        let particles = [];
+        
+        const game = {
+            state: 'PLAYING',
+            timeLeft: 30,
+            scores: [0, 0, 0, 0, 0],
+            artists: [
+                "Man on the Lakers",
+                "That's Bron",
+                "LeRnB",
+                "Lakers in 5",
+                "From LeStart"
+            ],
+            colors: [
+                0xFF6B35,  // Orange
+                0x4ECDC4,  // Teal
+                0xF7DC6F,  // Yellow
+                0xE056FD,  // Purple
+                0x52E3C2   // Mint
+            ],
+            
+            init: function() {
+                SoundManager.init();
+                this.setupScene();
+                this.startGame();
+                this.animateLoop();
+            },
+
+            setupScene: function() {
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x121212);
+                scene.fog = new THREE.Fog(0x121212, 50, 100);
+
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 15, 40);
+                camera.lookAt(0, 5, 0);
+                
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.shadowMap.enabled = true;
+                document.body.appendChild(renderer.domElement);
+
+                // Lighting
+                const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambient);
+                
+                const spotLight = new THREE.SpotLight(0xffffff, 1);
+                spotLight.position.set(0, 50, 0);
+                spotLight.castShadow = true;
+                scene.add(spotLight);
+
+                // Court
+                const courtGeo = new THREE.PlaneGeometry(80, 60);
+                const courtMat = new THREE.MeshStandardMaterial({ color: 0x2E2E2E });
+                const court = new THREE.Mesh(courtGeo, courtMat);
+                court.rotation.x = -Math.PI / 2;
+                court.receiveShadow = true;
+                scene.add(court);
+
+                // Create 5 hoops
+                for (let i = 0; i < 5; i++) {
+                    const x = (i - 2) * 12;
+                    const hoop = this.createHoop(x, 0, -20, this.colors[i]);
+                    hoops.push({ mesh: hoop, x: x, z: -20, color: this.colors[i] });
+                }
+
+                // Create initial ball
+                this.spawnBall();
+            },
+
+            createHoop: function(x, y, z, color) {
+                const hoopGroup = new THREE.Group();
+                
+                const rimGeo = new THREE.TorusGeometry(1.2, 0.08, 8, 20);
+                const rimMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.3 });
+                const rim = new THREE.Mesh(rimGeo, rimMat);
+                rim.rotation.x = Math.PI / 2;
+                rim.position.set(x, 8, z);
+                hoopGroup.add(rim);
+                
+                // Backboard
+                const backboardGeo = new THREE.BoxGeometry(3, 2, 0.2);
+                const backboardMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+                const backboard = new THREE.Mesh(backboardGeo, backboardMat);
+                backboard.position.set(x, 9, z - 1);
+                hoopGroup.add(backboard);
+                
+                scene.add(hoopGroup);
+                return hoopGroup;
+            },
+
+            spawnBall: function() {
+                const ballGeo = new THREE.SphereGeometry(0.3, 16, 16);
+                const ballMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xFDB927,
+                    emissive: 0xFDB927,
+                    emissiveIntensity: 0.2
+                });
+                const ball = new THREE.Mesh(ballGeo, ballMat);
+                
+                // Random starting position
+                ball.position.set(
+                    (Math.random() - 0.5) * 20,
+                    2,
+                    10
+                );
+                
+                // Random target hoop
+                const targetIndex = Math.floor(Math.random() * 5);
+                const target = hoops[targetIndex];
+                
+                // Calculate trajectory
+                const startPos = ball.position.clone();
+                const hoopPos = new THREE.Vector3(target.x, 8, target.z);
+                const direction = new THREE.Vector3().subVectors(hoopPos, startPos);
+                
+                const distance = direction.length();
+                const time = distance / 15; // Fixed speed
+                direction.normalize();
+                
+                // Add arc
+                const velocity = direction.multiplyScalar(15);
+                velocity.y = 10 + Math.random() * 3;
+                
+                ball.castShadow = true;
+                scene.add(ball);
+                
+                balls.push({
+                    mesh: ball,
+                    velocity: velocity,
+                    targetIndex: targetIndex,
+                    scored: false
+                });
+            },
+
+            updateBalls: function(delta) {
+                const gravity = -20;
+                
+                for (let i = balls.length - 1; i >= 0; i--) {
+                    const ball = balls[i];
+                    
+                    // Apply velocity
+                    ball.mesh.position.add(ball.velocity.clone().multiplyScalar(delta));
+                    
+                    // Apply gravity
+                    ball.velocity.y += gravity * delta;
+                    
+                    // Rotate ball
+                    ball.mesh.rotation.x += 0.1;
+                    ball.mesh.rotation.z += 0.05;
+                    
+                    // Check for scoring
+                    if (!ball.scored) {
+                        const target = hoops[ball.targetIndex];
+                        const distToHoop = Math.sqrt(
+                            Math.pow(ball.mesh.position.x - target.x, 2) + 
+                            Math.pow(ball.mesh.position.z - target.z, 2)
+                        );
+                        
+                        if (distToHoop < 1.2 && 
+                            ball.mesh.position.y > 7 && 
+                            ball.mesh.position.y < 9 &&
+                            ball.velocity.y < 0) {
+                            
+                            ball.scored = true;
+                            this.score(ball.targetIndex);
+                        }
+                    }
+                    
+                    // Remove if out of bounds
+                    if (ball.mesh.position.y < 0 || Math.abs(ball.mesh.position.x) > 50) {
+                        scene.remove(ball.mesh);
+                        balls.splice(i, 1);
+                    }
+                }
+            },
+
+            score: function(artistIndex) {
+                SoundManager.play('swish');
+                this.scores[artistIndex]++;
+                document.getElementById(`score${artistIndex + 1}`).innerText = this.scores[artistIndex];
+                
+                const msg = document.getElementById('message-overlay');
+                document.getElementById('message-text').innerText = 'SWISH!';
+                msg.classList.add('active');
+                setTimeout(() => msg.classList.remove('active'), 800);
+                
+                // Spawn confetti
+                const target = hoops[artistIndex];
+                this.spawnConfetti(new THREE.Vector3(target.x, 8, target.z), target.color);
+            },
+
+            spawnConfetti: function(pos, color) {
+                const geo = new THREE.PlaneGeometry(0.2, 0.2);
+                const mat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+                for (let i = 0; i < 30; i++) {
+                    const mesh = new THREE.Mesh(geo, mat);
+                    mesh.position.copy(pos);
+                    mesh.position.x += (Math.random() - 0.5) * 3;
+                    mesh.position.y += Math.random() * 2;
+                    const vel = new THREE.Vector3(
+                        (Math.random() - 0.5) * 5,
+                        Math.random() * 5,
+                        (Math.random() - 0.5) * 5
+                    );
+                    scene.add(mesh);
+                    particles.push({ mesh: mesh, velocity: vel });
+                }
+            },
+
+            startGame: function() {
+                this.gameTimer = setInterval(() => {
+                    this.timeLeft--;
+                    document.getElementById('timer').innerText = this.timeLeft;
+                    
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.gameTimer);
+                        clearInterval(this.ballSpawner);
+                        this.endGame();
+                    }
+                }, 1000);
+
+                // Spawn balls continuously
+                this.ballSpawner = setInterval(() => {
+                    if (balls.length < 5) {
+                        this.spawnBall();
+                    }
+                }, 800);
+            },
+
+            endGame: function() {
+                this.state = 'END';
+                
+                // Find winner
+                const maxScore = Math.max(...this.scores);
+                const winnerIndex = this.scores.indexOf(maxScore);
+                
+                // Create sorted scores
+                const sortedScores = this.scores
+                    .map((score, i) => ({ artist: this.artists[i], score: score, index: i }))
+                    .sort((a, b) => b.score - a.score);
+                
+                // Display results
+                document.getElementById('winner-text').innerHTML = 
+                    `🏆 ${sortedScores[0].artist.toUpperCase()} 🏆<br><span style="font-size: 24px; color: #B3B3B3;">Your Top Artist</span>`;
+                
+                const finalScoresDiv = document.getElementById('final-scores');
+                finalScoresDiv.innerHTML = '';
+                
+                sortedScores.forEach((item, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'final-score-item';
+                    div.innerHTML = `
+                        <div class="final-rank">${i + 1}</div>
+                        <div class="final-artist">${item.artist}</div>
+                        <div class="final-score">${item.score}</div>
+                    `;
+                    finalScoresDiv.appendChild(div);
+                });
+                
+                document.getElementById('game-over').classList.add('active');
+                
+                // Notify parent if embedded
+                if (window.parent !== window) {
+                    window.parent.postMessage({ 
+                        type: 'GAME_OVER', 
+                        winner: sortedScores[0].artist,
+                        scores: sortedScores
+                    }, '*');
+                }
+            },
+
+            animateLoop: function() {
+                requestAnimationFrame(() => this.animateLoop());
+                
+                const delta = 0.016; // ~60fps
+                
+                if (this.state === 'PLAYING') {
+                    this.updateBalls(delta);
+                }
+                
+                // Animate particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.mesh.position.add(p.velocity.clone().multiplyScalar(delta));
+                    p.mesh.rotation.x += 0.1;
+                    p.velocity.y -= 15 * delta;
+                    
+                    if (p.mesh.position.y < 0) {
+                        scene.remove(p.mesh);
+                        particles.splice(i, 1);
+                    }
+                }
+                
+                TWEEN.update();
+                renderer.render(scene, camera);
+            }
+        };
+
+        game.init();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
+
+

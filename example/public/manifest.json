@@ -1,0 +1,21 @@
+{
+  "name": "Bronify Wrapped 2025",
+  "short_name": "Bronify",
+  "description": "Your LeBron-themed music wrapped experience",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#552583",
+  "theme_color": "#FDB927",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/lebron-james-seeklogo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "music"],
+  "prefer_related_applications": false
+}
+
