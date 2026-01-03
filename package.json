@@ -38,7 +38,7 @@
 	"bugs": {
 		"url": "https://github.com/aminester/bronifywrapped/issues"
 	},
-	"homepage": "https://bronifywrapped.vercel.app",
+	"homepage": "https://github.com/aminester/bronifywrapped",
 	"devDependencies": {
 		"@babel/core": "^7.5.5",
 		"@babel/preset-env": "^7.5.5",

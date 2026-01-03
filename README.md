@@ -79,13 +79,15 @@ bronify-wrapped/
 └── dist/                    # Compiled output
 ```
 
-## Deployment
+## Build
 
-The app automatically deploys to Vercel on push to main branch.
+To build for production:
 
-Build command: `cd example && npm install && npm run build`
+```bash
+cd example && npm run build
+```
 
-Output directory: `example/dist`
+Build output will be in `example/dist`
 
 ## Documentation
 
