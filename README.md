@@ -1,4 +1,5 @@
 # Bronify Wrapped 2025
+<img width="456" height="766" alt="Screenshot 2026-01-02 at 11 20 13 PM" src="https://github.com/user-attachments/assets/3ce5cc9c-bc66-40d2-ba77-aca31cb03094" />
 
 A year-end wrapped experience for Bronify, the LeBron James music streaming platform.
 
